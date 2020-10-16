@@ -1,0 +1,82 @@
+{
+  "number_of_shards": 5,
+  "number_of_replicas": 1,
+  "refresh_interval": "5s",
+  "analysis": {
+    "analyzer": {
+      //ik细粒度
+      "ikSearchAnalyzer": {
+        "type": "custom",
+        "tokenizer": "ik_max_word",
+        "char_filter": [
+          "tsconvert"
+        ]
+      },
+      /*ik粗粒度分词*/
+      "ikSmartSearchAnalyzer": {
+        "type": "custom",
+        "tokenizer": "ik_smart",
+        "char_filter": [
+          "tsconvert"
+        ]
+      },
+      //拼音分词
+      "pinyinSimpleAnalyzer": {
+        "tokenizer": "my_pinyin"
+      },
+      //拼音，大小写，短语分词
+      "pinyinComplexAnalyzer": {
+        "tokenizer": "ik_smart",
+        "filter": [
+          "lowercase",
+          "pinyin_simple_filter",
+          "edge_ngram_filter"
+        ]
+      },
+      //大小写转换分词
+      "lowercaseAnalyzer": {
+        "type": "custom",
+        "tokenizer": "keyword",
+        "filter": "lowercase"
+      }
+    },
+    "tokenizer" : {
+      "my_pinyin" : {
+        "type" : "pinyin",
+        "keep_separate_first_letter" : false,
+        "keep_full_pinyin" : true,
+        "keep_original" : true,
+        "limit_first_letter_length" : 16,
+        "lowercase" : true,
+        "remove_duplicated_term" : true
+      }
+    },
+    "filter": {
+      //短语过滤
+      "edge_ngram_filter": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 50
+      },
+      //拼音过滤
+      "pinyin_simple_filter": {
+        "type": "pinyin",
+        "first_letter": "prefix",
+        "padding_char": " ",
+        "limit_first_letter_length": 50, //设置first_letter结果的最大长度，默认值：16
+        //"keep_separate_first_letter" : false, //启用该选项时，将保留第一个字母分开，例如：刘德华> l，d，h，默认：false，注意：查询结果也许是太模糊，由于长期过频
+        //"keep_full_pinyin" : true,  //当启用该选项，例如：刘德华> [ liu，de，hua]，默认值：true
+        //"keep_original" : true, //启用此选项时，也将保留原始输入，默认值：false
+        //"remove_duplicated_term" : true,  //启用此选项后，将删除重复的术语以保存索引，例如：de的> de，default：false，注意：位置相关的查询可能会受到影响
+        "lowercase": true //小写非中文字母，默认值：true
+      }
+    },
+    "char_filter": {
+      //简繁体过滤
+      "tsconvert": {
+        "type": "stconvert",
+        "convert_type": "t2s"
+      }
+    }
+  }
+}

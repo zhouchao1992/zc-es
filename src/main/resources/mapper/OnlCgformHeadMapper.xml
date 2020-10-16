@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zc.es.mapper.OnlCgformHeadMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zc.es.entity.OnlCgformHead">
+        <id column="id" property="id" />
+        <result column="table_name" property="tableName" />
+        <result column="table_type" property="tableType" />
+        <result column="table_version" property="tableVersion" />
+        <result column="table_txt" property="tableTxt" />
+        <result column="is_checkbox" property="isCheckbox" />
+        <result column="is_db_synch" property="isDbSynch" />
+        <result column="is_page" property="isPage" />
+        <result column="is_tree" property="isTree" />
+        <result column="id_sequence" property="idSequence" />
+        <result column="id_type" property="idType" />
+        <result column="query_mode" property="queryMode" />
+        <result column="relation_type" property="relationType" />
+        <result column="sub_table_str" property="subTableStr" />
+        <result column="tab_order_num" property="tabOrderNum" />
+        <result column="tree_parent_id_field" property="treeParentIdField" />
+        <result column="tree_id_field" property="treeIdField" />
+        <result column="tree_fieldname" property="treeFieldname" />
+        <result column="form_category" property="formCategory" />
+        <result column="form_template" property="formTemplate" />
+        <result column="form_template_mobile" property="formTemplateMobile" />
+        <result column="scroll" property="scroll" />
+        <result column="copy_version" property="copyVersion" />
+        <result column="copy_type" property="copyType" />
+        <result column="physic_id" property="physicId" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="theme_template" property="themeTemplate" />
+    </resultMap>
+
+</mapper>

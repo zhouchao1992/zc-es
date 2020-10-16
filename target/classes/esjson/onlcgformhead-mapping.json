@@ -1,0 +1,140 @@
+{
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "tableName": {
+      "type": "keyword"
+    },
+    "tableType": {
+      "type": "integer"
+    },
+    "tableVersion": {
+      "type": "integer"
+    },
+    "tableTxt": {
+      "type": "text",
+      "analyzer": "ikSearchAnalyzer",
+      "search_analyzer": "ikSmartSearchAnalyzer",
+      "fields": {
+        "pinyin": {
+          "type": "text",
+          "analyzer": "pinyinComplexAnalyzer",
+          "search_analyzer": "pinyinComplexAnalyzer",
+          "store": false,
+          "term_vector": "with_offsets"
+        }
+      }
+    },
+    "isCheckbox": {
+      "type": "text",
+      "index": false
+    },
+    "isDbSynch": {
+      "type": "text",
+      "index": false
+    },
+    "isPage": {
+      "type": "text",
+      "index": false
+    },
+    "isTree": {
+      "type": "text",
+      "index": false
+    },
+    "idSequence": {
+      "type": "text",
+      "index": false
+    },
+    "idType": {
+      "type": "text",
+      "index": false
+    },
+    "queryMode": {
+      "type": "text",
+      "index": false
+    },
+    "relationType": {
+      "type": "integer",
+      "index": false
+    },
+    "subTableStr": {
+      "type": "text",
+      "index": false
+    },
+    "tabOrderNum": {
+      "type": "integer",
+      "index": false
+    },
+    "treeParentIdField": {
+      "type": "text",
+      "index": false
+    },
+    "treeIdField": {
+      "type": "text",
+      "index": false
+    },
+    "treeFieldname": {
+      "type": "text",
+      "index": false
+    },
+    "formCategory": {
+      "type": "text",
+      "index": false
+    },
+    "formTemplate": {
+      "type": "text",
+      "index": false
+    },
+    "formTemplateMobile": {
+      "type": "text",
+      "index": false
+    },
+    "scroll": {
+      "type": "integer",
+      "index": false
+    },
+    "copyVersion": {
+      "type": "integer",
+      "index": false
+    },
+    "copyType": {
+      "type": "integer",
+      "index": false
+    },
+    "physicId": {
+      "type": "text",
+      "index": false
+    },
+    "updateBy": {
+      "type": "text",
+      "index": false
+    },
+    "updateTime": {
+      "type": "date",
+      "format": "yyyy-MM-dd HH:mm:ss"
+    },
+    "createBy": {
+      "type": "text",
+      "analyzer": "ikSearchAnalyzer",
+      "search_analyzer": "ikSmartSearchAnalyzer",
+      "fields": {
+        "pinyin": {
+          "type": "text",
+          "analyzer": "pinyinComplexAnalyzer",
+          "search_analyzer": "pinyinComplexAnalyzer",
+          "store": false,
+          "term_vector": "with_offsets"
+        }
+      }
+    },
+    "createTime": {
+      "type": "date",
+      "format": "yyyy-MM-dd HH:mm:ss"
+    },
+    "themeTemplate": {
+      "type": "text",
+      "index": false
+    }
+  }
+}

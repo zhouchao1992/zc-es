@@ -1,0 +1,67 @@
+server:
+  port: 8887
+spring:
+  application:
+    name: zc-es
+  devtools:
+    restart:
+      enabled: true  #���ÿ����Ȳ���
+      additional-paths: src/main #����Ŀ¼
+      #exclude: WEB-INF/**
+    freemarker:
+      cache: true    #ҳ�治���ػ��棬�޸ļ�ʱ��Ч
+  datasource:
+    url: jdbc:mysql://129.28.158.68:3306/jeecg-boot?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    # ʹ��druid����Դ
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # ����Ϊ���ӳصĲ������ã�Ӧ�õ�������������Դ��
+    # ��ʼ����С����С�����
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    # ���û�ȡ���ӵȴ���ʱ��ʱ��
+    maxWait: 60000
+    # ���ü����òŽ���һ�μ�⣬�����Ҫ�رյĿ������ӣ���λ�Ǻ���
+    timeBetweenEvictionRunsMillis: 60000
+    # ����һ�������ڳ�����С�����ʱ�䣬��λ�Ǻ���
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM user
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    # ��PSCache������ָ��ÿ��������PSCache�Ĵ�С
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    # ���ü��ͳ�����ص�filters��ȥ�����ؽ���sql�޷�ͳ�ƣ�'wall'���ڷ���ǽ
+    spring.datasource.filters: stat,wall
+    # ͨ��connectProperties��������mergeSql���ܣ���SQL��¼
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+    # �ϲ����DruidDataSource�ļ������
+    #useGlobalDataSourceStat: true
+
+#�����springboot��Ŀ����������ϵͳ,Ϊ�˽ӿڰ�ȫ,��Ҫ��������Swagger�������Դ��ֻ��Ҫ�������ļ������
+knife4j:
+  production: false
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    auto-mapping-behavior: full
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  global-config:
+    # �߼�ɾ������
+    db-config:
+      # ɾ��ǰ
+      logic-not-delete-value: 1
+      # ɾ����
+      logic-delete-value: 0
+
+elasticsearch:
+  user:
+  password:
+  #����ö��Ÿ���
+  host: 127.0.0.1:9200
