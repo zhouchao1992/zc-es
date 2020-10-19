@@ -7,10 +7,7 @@ import com.zc.es.service.OnlCgformHeadService;
 import com.zc.es.utils.esconfig.EsUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -54,7 +51,14 @@ public class OnlCgformHeadController {
     @ApiOperation("es查询数据")
     @GetMapping("essearch")
     public  Object essearch(String searchFiled,String keyword,String indexName,String sortFiled,String isdesc,Integer pageNumber ,Integer pageSize) throws Exception {
-        List<String> index = esUtils.search(searchFiled,keyword,indexName,sortFiled,isdesc,pageNumber,pageSize);
+        List<OnlCgformHead> index = esUtils.search(searchFiled,keyword,indexName,sortFiled,isdesc,pageNumber,pageSize,OnlCgformHead.class);
         return index;
     }
+
+    @ApiOperation("查询数据")
+    @PostMapping("search")
+    public  Object search(@RequestBody OnlCgformHead cgformHead) throws Exception {
+        return esUtils.pageHigh(cgformHead);
+    }
+
 }

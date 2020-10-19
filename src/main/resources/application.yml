@@ -5,44 +5,45 @@ spring:
     name: zc-es
   devtools:
     restart:
-      enabled: true  #ÉèÖÃ¿ªÆôÈÈ²¿Êğ
-      additional-paths: src/main #ÖØÆôÄ¿Â¼
+      enabled: true  #è®¾ç½®å¼€å¯çƒ­éƒ¨ç½²
+      additional-paths: src/main/java #é‡å¯ç›®å½•
       #exclude: WEB-INF/**
     freemarker:
-      cache: true    #Ò³Ãæ²»¼ÓÔØ»º´æ£¬ĞŞ¸Ä¼´Ê±ÉúĞ§
+      cache: true    #é¡µé¢ä¸åŠ è½½ç¼“å­˜ï¼Œä¿®æ”¹å³æ—¶ç”Ÿæ•ˆ
   datasource:
-    url: jdbc:mysql://129.28.158.68:3306/jeecg-boot?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    #url: jdbc:mysql://129.28.158.68:3306/jeecg-boot?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://127.0.0.1:3306/jeecg-boot?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
-    # Ê¹ÓÃdruidÊı¾İÔ´
+    # ä½¿ç”¨druidæ•°æ®æº
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # ÏÂÃæÎªÁ¬½Ó³ØµÄ²¹³äÉèÖÃ£¬Ó¦ÓÃµ½ÉÏÃæËùÓĞÊı¾İÔ´ÖĞ
-    # ³õÊ¼»¯´óĞ¡£¬×îĞ¡£¬×î´ó
+    # ä¸‹é¢ä¸ºè¿æ¥æ± çš„è¡¥å……è®¾ç½®ï¼Œåº”ç”¨åˆ°ä¸Šé¢æ‰€æœ‰æ•°æ®æºä¸­
+    # åˆå§‹åŒ–å¤§å°ï¼Œæœ€å°ï¼Œæœ€å¤§
     initialSize: 5
     minIdle: 5
     maxActive: 20
-    # ÅäÖÃ»ñÈ¡Á¬½ÓµÈ´ı³¬Ê±µÄÊ±¼ä
+    # é…ç½®è·å–è¿æ¥ç­‰å¾…è¶…æ—¶çš„æ—¶é—´
     maxWait: 60000
-    # ÅäÖÃ¼ä¸ô¶à¾Ã²Å½øĞĞÒ»´Î¼ì²â£¬¼ì²âĞèÒª¹Ø±ÕµÄ¿ÕÏĞÁ¬½Ó£¬µ¥Î»ÊÇºÁÃë
+    # é…ç½®é—´éš”å¤šä¹…æ‰è¿›è¡Œä¸€æ¬¡æ£€æµ‹ï¼Œæ£€æµ‹éœ€è¦å…³é—­çš„ç©ºé—²è¿æ¥ï¼Œå•ä½æ˜¯æ¯«ç§’
     timeBetweenEvictionRunsMillis: 60000
-    # ÅäÖÃÒ»¸öÁ¬½ÓÔÚ³ØÖĞ×îĞ¡Éú´æµÄÊ±¼ä£¬µ¥Î»ÊÇºÁÃë
+    # é…ç½®ä¸€ä¸ªè¿æ¥åœ¨æ± ä¸­æœ€å°ç”Ÿå­˜çš„æ—¶é—´ï¼Œå•ä½æ˜¯æ¯«ç§’
     minEvictableIdleTimeMillis: 300000
     validationQuery: SELECT 1 FROM user
     testWhileIdle: true
     testOnBorrow: false
     testOnReturn: false
-    # ´ò¿ªPSCache£¬²¢ÇÒÖ¸¶¨Ã¿¸öÁ¬½ÓÉÏPSCacheµÄ´óĞ¡
+    # æ‰“å¼€PSCacheï¼Œå¹¶ä¸”æŒ‡å®šæ¯ä¸ªè¿æ¥ä¸ŠPSCacheçš„å¤§å°
     poolPreparedStatements: true
     maxPoolPreparedStatementPerConnectionSize: 20
-    # ÅäÖÃ¼à¿ØÍ³¼ÆÀ¹½ØµÄfilters£¬È¥µôºó¼à¿Ø½çÃæsqlÎŞ·¨Í³¼Æ£¬'wall'ÓÃÓÚ·À»ğÇ½
+    # é…ç½®ç›‘æ§ç»Ÿè®¡æ‹¦æˆªçš„filtersï¼Œå»æ‰åç›‘æ§ç•Œé¢sqlæ— æ³•ç»Ÿè®¡ï¼Œ'wall'ç”¨äºé˜²ç«å¢™
     spring.datasource.filters: stat,wall
-    # Í¨¹ıconnectPropertiesÊôĞÔÀ´´ò¿ªmergeSql¹¦ÄÜ£»ÂıSQL¼ÇÂ¼
+    # é€šè¿‡connectPropertieså±æ€§æ¥æ‰“å¼€mergeSqlåŠŸèƒ½ï¼›æ…¢SQLè®°å½•
     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
-    # ºÏ²¢¶à¸öDruidDataSourceµÄ¼à¿ØÊı¾İ
+    # åˆå¹¶å¤šä¸ªDruidDataSourceçš„ç›‘æ§æ•°æ®
     #useGlobalDataSourceStat: true
 
-#Èç¹ûÊÇspringbootÏîÄ¿£¬²¿Êğµ½Éú²úÏµÍ³,ÎªÁË½Ó¿Ú°²È«,ĞèÒªÆÁ±ÎËùÓĞSwaggerµÄÏà¹Ø×ÊÔ´£¬Ö»ĞèÒªÔÚÅäÖÃÎÄ¼şÖĞÌí¼Ó
+#å¦‚æœæ˜¯springbooté¡¹ç›®ï¼Œéƒ¨ç½²åˆ°ç”Ÿäº§ç³»ç»Ÿ,ä¸ºäº†æ¥å£å®‰å…¨,éœ€è¦å±è”½æ‰€æœ‰Swaggerçš„ç›¸å…³èµ„æºï¼Œåªéœ€è¦åœ¨é…ç½®æ–‡ä»¶ä¸­æ·»åŠ 
 knife4j:
   production: false
 
@@ -53,15 +54,15 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   mapper-locations: classpath*:mapper/**/*Mapper.xml
   global-config:
-    # Âß¼­É¾³ıÅäÖÃ
+    # é€»è¾‘åˆ é™¤é…ç½®
     db-config:
-      # É¾³ıÇ°
+      # åˆ é™¤å‰
       logic-not-delete-value: 1
-      # É¾³ıºó
+      # åˆ é™¤å
       logic-delete-value: 0
 
 elasticsearch:
   user:
   password:
-  #¶à¸öÓÃ¶ººÅ¸ô¿ª
+  #å¤šä¸ªç”¨é€—å·éš”å¼€
   host: 127.0.0.1:9200

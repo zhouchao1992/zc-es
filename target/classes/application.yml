@@ -5,44 +5,45 @@ spring:
     name: zc-es
   devtools:
     restart:
-      enabled: true  #���ÿ����Ȳ���
-      additional-paths: src/main #����Ŀ¼
+      enabled: true  #设置开启热部署
+      additional-paths: src/main/java #重启目录
       #exclude: WEB-INF/**
     freemarker:
-      cache: true    #ҳ�治���ػ��棬�޸ļ�ʱ��Ч
+      cache: true    #页面不加载缓存，修改即时生效
   datasource:
-    url: jdbc:mysql://129.28.158.68:3306/jeecg-boot?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    #url: jdbc:mysql://129.28.158.68:3306/jeecg-boot?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://127.0.0.1:3306/jeecg-boot?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
-    # ʹ��druid����Դ
+    # 使用druid数据源
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # ����Ϊ���ӳصĲ������ã�Ӧ�õ�������������Դ��
-    # ��ʼ����С����С�����
+    # 下面为连接池的补充设置，应用到上面所有数据源中
+    # 初始化大小，最小，最大
     initialSize: 5
     minIdle: 5
     maxActive: 20
-    # ���û�ȡ���ӵȴ���ʱ��ʱ��
+    # 配置获取连接等待超时的时间
     maxWait: 60000
-    # ���ü����òŽ���һ�μ�⣬�����Ҫ�رյĿ������ӣ���λ�Ǻ���
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
     timeBetweenEvictionRunsMillis: 60000
-    # ����һ�������ڳ�����С�����ʱ�䣬��λ�Ǻ���
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
     minEvictableIdleTimeMillis: 300000
     validationQuery: SELECT 1 FROM user
     testWhileIdle: true
     testOnBorrow: false
     testOnReturn: false
-    # ��PSCache������ָ��ÿ��������PSCache�Ĵ�С
+    # 打开PSCache，并且指定每个连接上PSCache的大小
     poolPreparedStatements: true
     maxPoolPreparedStatementPerConnectionSize: 20
-    # ���ü��ͳ�����ص�filters��ȥ�����ؽ���sql�޷�ͳ�ƣ�'wall'���ڷ���ǽ
+    # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
     spring.datasource.filters: stat,wall
-    # ͨ��connectProperties��������mergeSql���ܣ���SQL��¼
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
-    # �ϲ����DruidDataSource�ļ������
+    # 合并多个DruidDataSource的监控数据
     #useGlobalDataSourceStat: true
 
-#�����springboot��Ŀ����������ϵͳ,Ϊ�˽ӿڰ�ȫ,��Ҫ��������Swagger�������Դ��ֻ��Ҫ�������ļ������
+#如果是springboot项目，部署到生产系统,为了接口安全,需要屏蔽所有Swagger的相关资源，只需要在配置文件中添加
 knife4j:
   production: false
 
@@ -53,15 +54,15 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   mapper-locations: classpath*:mapper/**/*Mapper.xml
   global-config:
-    # �߼�ɾ������
+    # 逻辑删除配置
     db-config:
-      # ɾ��ǰ
+      # 删除前
       logic-not-delete-value: 1
-      # ɾ����
+      # 删除后
       logic-delete-value: 0
 
 elasticsearch:
   user:
   password:
-  #����ö��Ÿ���
+  #多个用逗号隔开
   host: 127.0.0.1:9200

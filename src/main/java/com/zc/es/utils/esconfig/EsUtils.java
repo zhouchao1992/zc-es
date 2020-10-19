@@ -2,6 +2,8 @@ package com.zc.es.utils.esconfig;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zc.es.entity.OnlCgformHead;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -21,6 +23,8 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -28,6 +32,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -35,13 +40,17 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
-public class EsUtils {
+public class EsUtils<T> {
 
     @Resource
    private  RestHighLevelClient client;
@@ -158,60 +167,6 @@ public class EsUtils {
         return count.get();
     }
 
-    /***
-     * 查询文档
-     * @param searchFiled  查询字段
-     * @param keyword      查询条件
-     * @param indexName    查询索引
-     * @param sortFiled    排序字段
-     * @param isdesc       升序还是降序
-     * @param pageNumber   当前页码
-     * @param pageSize      查询条数
-     * @return
-     * @throws IOException
-     */
-    public  List<String> search(String searchFiled,String keyword,String indexName,String sortFiled,String isdesc,Integer pageNumber ,Integer pageSize ) throws IOException {
-        //设置高亮字段
-        HighlightBuilder highlightBuilder = new HighlightBuilder(); //创建一个新的HighlightBuilder。
-        //自定义高亮标签
-        highlightBuilder.preTags("<span style=\"color:red\">");
-        highlightBuilder.postTags("</span>");
-        HighlightBuilder.Field highlightTitle = new HighlightBuilder.Field("name");  //为title字段创建字段高光色。
-        highlightTitle.highlighterType("unified"); // 设置字段高光色类型。
-        highlightBuilder.field(highlightTitle);   //将字段高光色添加到高亮构建器。
-       /* HighlightBuilder.Field highlightFiled = new HighlightBuilder.Field("keywords");
-        highlightBuilder.field(highlightFiled);*/
-        //下面这两项,如果你要高亮如文字内容等有很多字的字段,必须配置,不然会导致高亮不全,文章内容缺失等
-        highlightBuilder.fragmentSize(800000); //最大高亮分片数
-        highlightBuilder.numOfFragments(0); //从第一个分片获取高亮片段
-        //构建条件执行器
-        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-        if (StringUtils.isNotBlank(searchFiled) && StringUtils.isNotBlank(keyword)){
-            boolBuilder.must(QueryBuilders.matchQuery(searchFiled, keyword)); // 这里可以根据字段进行搜索，must表示符合条件的，相反的mustnot表示不符合条件的
-        }
-        // boolBuilder.must(QueryBuilders.matchQuery("id", tests.getId().toString()));
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.sort(sortFiled, "DESC".equals(isdesc)?SortOrder.DESC:SortOrder.ASC);
-        searchSourceBuilder.query(boolBuilder);
-        searchSourceBuilder.from(pageNumber);
-        searchSourceBuilder.size(pageSize); // 获取记录数，默认10
-
-        searchSourceBuilder.highlighter(highlightBuilder);
-        //sourceBuilder.fetchSource(new String[] { "user", "title","desc" }, new String[] {}); // 第一个是获取字段，第二个是过滤的字段，默认获取全部
-        SearchRequest searchRequest = new SearchRequest(indexName);
-        //searchRequest.types(type);
-        searchRequest.source(searchSourceBuilder);
-        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-        SearchHit[] hits = response.getHits().getHits();
-        ArrayList<String> list = new ArrayList<String>();
-        for (SearchHit hit : hits) {
-            String json = hit.getSourceAsString();
-            System.out.println("查询结果-------->"+json);
-            list.add(json);
-        }
-        return list;
-    }
-
 
 
     /**
@@ -249,5 +204,145 @@ public class EsUtils {
             System.out.println("创建索引库:"+index+"成功！" );
         }
         return falg;
+    }
+
+
+
+    /**  IK，拼音，短语分词分页并高亮关键词搜索
+     * 该查询方法待封装完整，封装为公共的查询方法
+     * @param searchVo
+     * @return
+     */
+    public Page<OnlCgformHead> pageHigh(OnlCgformHead searchVo){
+        Page<OnlCgformHead> page = new Page(1,10,0);
+        // 页码
+        try {
+            //不指定索引，则搜索所有的索引
+            SearchRequest searchRequest = new SearchRequest("onlcgformhead");
+            // 构建查询
+            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+            // 索引查询
+            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            //boost 设置权重
+            //分词查询
+            boolQueryBuilder.should(QueryBuilders.matchQuery("tableTxt", searchVo.getTableTxt()).boost(2f));
+            //拼音查询
+            boolQueryBuilder.should(QueryBuilders.matchPhraseQuery("tableTxt.pinyin", searchVo.getTableTxt()).boost(2f));
+            //模糊查询，不区分大小写
+//            boolQueryBuilder.should(QueryBuilders.wildcardQuery("keyword", "*"+searchVo.getKeyword().toLowerCase()+"*").boost(2f));
+            //必须满足should其中一个条件
+            boolQueryBuilder.minimumShouldMatch(1);
+            //时间范围查询
+//            boolQueryBuilder.must(QueryBuilders.rangeQuery("createTime")
+//                    .from(DateKit.format(DateKit.getDayBegin(),"yyyy-MM-dd HH:mm:ss"))
+//                    .to(DateKit.format(DateKit.getDayBegin(),"yyyy-MM-dd HH:mm:ss")));
+            sourceBuilder.query(boolQueryBuilder);
+            //设置返回的字段
+           /* String[] includeFields = new String[] {"id","tableTxt"};
+            sourceBuilder.fetchSource(includeFields,null);*/
+            // 高亮设置
+            List<String> highlightFieldList = new ArrayList<>();
+            highlightFieldList.add("id");
+            highlightFieldList.add("tableName");
+            highlightFieldList.add("tableTxt");
+            HighlightBuilder highlightBuilder = new HighlightBuilder();
+            for (int x = 0; x < highlightFieldList.size(); x++) {
+                HighlightBuilder.Field field = new HighlightBuilder.Field(highlightFieldList.get(x)).preTags("<high>").postTags("</high>");
+                highlightBuilder.field(field);
+            }
+            sourceBuilder.highlighter(highlightBuilder);
+            // 分页设置
+            sourceBuilder.from(1);
+            sourceBuilder.size(10);
+            //        sourceBuilder.sort("id", SortOrder.ASC); // 设置排序规则
+            sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+
+            searchRequest.source(sourceBuilder);
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits searchHits = response.getHits();
+            page.setTotal(searchHits.getTotalHits().value);
+            List<OnlCgformHead> list = new ArrayList<>();
+            Pattern pattern = Pattern.compile("(?i)"+searchVo.getTableTxt());
+            for (SearchHit hit : searchHits.getHits()) {
+                String sourceAsString = hit.getSourceAsString();
+                OnlCgformHead vo = JSON.parseObject(sourceAsString, OnlCgformHead.class);
+                //高亮字段（拼音不做高亮，拼音的高亮有问题，会将整个字符串高亮）
+                HighlightField tableTxt = hit.getHighlightFields().get("tableTxt");
+                if (tableTxt != null) {
+                    Text[] text = hit.getHighlightFields().get("tableTxt").getFragments();
+                    vo.setTableTxt(text[0].toString());
+                }
+                //ngram短语，模糊搜索高亮,不区分大小写直接字符串替换
+                String keyword = vo.getTableTxt();
+                if(!keyword.contains("<high>")){
+                    Matcher matcher = pattern.matcher(keyword);
+                    if(matcher.find()){
+                        String s = matcher.group();
+                        vo.setTableTxt(keyword.replace(s,"<high>"+s+"</high>"));
+                    }
+                }
+                list.add(vo);
+            }
+            page.setRecords(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return page;
+    }
+
+    /***
+     * 查询文档     该方法高亮显示有问题，参考上面一个查询方法
+     * @param searchFiled  查询字段
+     * @param keyword      查询条件
+     * @param indexName    查询索引
+     * @param sortFiled    排序字段
+     * @param isdesc       升序还是降序
+     * @param pageNumber   当前页码
+     * @param pageSize     查询条数
+     * @param clazz            查询需要返回的实体
+     * @return
+     * @throws IOException
+     */
+    public  List<T> search(String searchFiled,String keyword,String indexName,String sortFiled,String isdesc,Integer pageNumber ,Integer pageSize,T clazz ) throws IOException, IllegalAccessException, InstantiationException {
+        //设置高亮字段
+        HighlightBuilder highlightBuilder = new HighlightBuilder(); //创建一个新的HighlightBuilder。
+        //自定义高亮标签
+        highlightBuilder.preTags("<span style=\"color:red\">");
+        highlightBuilder.postTags("</span>");
+        HighlightBuilder.Field highlightTitle = new HighlightBuilder.Field(searchFiled);  //为title字段创建字段高光色。
+        // highlightTitle.highlighterType("unified"); // 设置字段高光色类型。
+        highlightBuilder.field(highlightTitle);   //将字段高光色添加到高亮构建器。
+       /* HighlightBuilder.Field highlightFiled = new HighlightBuilder.Field("keywords");
+        highlightBuilder.field(highlightFiled);*/
+        //下面这两项,如果你要高亮如文字内容等有很多字的字段,必须配置,不然会导致高亮不全,文章内容缺失等
+        highlightBuilder.fragmentSize(800000); //最大高亮分片数
+        highlightBuilder.numOfFragments(0); //从第一个分片获取高亮片段
+        //构建条件执行器
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        if (StringUtils.isNotBlank(searchFiled) && StringUtils.isNotBlank(keyword)){
+            boolBuilder.must(QueryBuilders.matchAllQuery()); // 这里可以根据字段进行搜索，must表示符合条件的，相反的mustnot表示不符合条件的
+        }
+        // boolBuilder.must(QueryBuilders.matchQuery("id", tests.getId().toString()));
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.sort(sortFiled, "DESC".equals(isdesc)?SortOrder.DESC:SortOrder.ASC);
+        searchSourceBuilder.query(boolBuilder);
+        searchSourceBuilder.from(pageNumber);
+        searchSourceBuilder.size(pageSize); // 获取记录数，默认10
+
+        searchSourceBuilder.highlighter(highlightBuilder);
+        //sourceBuilder.fetchSource(new String[] { "user", "title","desc" }, new String[] {}); // 第一个是获取字段，第二个是过滤的字段，默认获取全部
+        SearchRequest searchRequest = new SearchRequest(indexName);
+        //searchRequest.types(type);
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHit[] hits = response.getHits().getHits();
+        ArrayList<T> list = new ArrayList<>();
+        for (SearchHit hit : hits) {
+            String json = hit.getSourceAsString();
+            T t = JSON.parseObject(json, (Type) ((Class) clazz).newInstance().getClass());
+            System.out.println("查询结果-------->"+json);
+            list.add(t);
+        }
+        return list;
     }
 }
