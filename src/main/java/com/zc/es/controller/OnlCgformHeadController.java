@@ -40,10 +40,7 @@ public class OnlCgformHeadController {
         Page page = new Page();
         page.setSize(pageSize);
         page.setCurrent(current);
-        Object proxyInstance = new ProxyFactory(onlCgformHeadService).getProxyInstance();
-
-        //Page page1 = headService.page(page);
-        return page;
+        return onlCgformHeadService.page(page);
     }
 
     @ApiOperation("导入数据")
