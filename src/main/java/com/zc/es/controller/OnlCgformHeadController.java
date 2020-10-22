@@ -3,7 +3,9 @@ package com.zc.es.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zc.es.entity.OnlCgformHead;
+import com.zc.es.proxy.ProxyFactory;
 import com.zc.es.service.OnlCgformHeadService;
+import com.zc.es.service.impl.OnlCgformHeadServiceImpl;
 import com.zc.es.utils.esconfig.EsUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +30,7 @@ public class OnlCgformHeadController {
     @Resource
     OnlCgformHeadService onlCgformHeadService;
 
+
     @Resource
     EsUtils esUtils;
 
@@ -37,7 +40,10 @@ public class OnlCgformHeadController {
         Page page = new Page();
         page.setSize(pageSize);
         page.setCurrent(current);
-        return onlCgformHeadService.page(page);
+        Object proxyInstance = new ProxyFactory(onlCgformHeadService).getProxyInstance();
+
+        //Page page1 = headService.page(page);
+        return page;
     }
 
     @ApiOperation("导入数据")

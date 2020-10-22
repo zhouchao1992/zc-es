@@ -17,4 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class OnlCgformHeadServiceImpl extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implements OnlCgformHeadService {
 
+    @Override
+    public void demo() {
+        System.out.println("1111111111");
+    }
 }

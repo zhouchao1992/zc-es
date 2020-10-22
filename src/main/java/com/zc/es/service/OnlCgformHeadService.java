@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface OnlCgformHeadService extends IService<OnlCgformHead> {
 
+    void demo();
+
 }
